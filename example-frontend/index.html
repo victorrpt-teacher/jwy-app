@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <form id="login-form" >
+    <label>
+      <span>Email</span>
+      <input
+        type="email"
+        id="email-input"
+        name="email"
+        required
+        placeholder="test@example.com"
+        autocomplete="email" />
+    </label>
+    
+    <label>
+      <span>Password</span>
+      <input
+        type="password"
+        id="password-input"
+        name="password"
+        required
+        placeholder="*********"
+        autocomplete="current-password" />
+    </label>
+    <button
+      type="submit"
+      id="login-button">
+      Sign in
+    </button>
+  </form>
+  <div id="user-label">
+  </div>
+  <section id="items-section" style="display: none;">
+    <h2>Items</h2>
+    <button id="refresh-items">Recargar</button>
+    <ul id="items-list"></ul>
+  </section>
+  <script src="app.js"></script>
+</body>
+
+</html>

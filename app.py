@@ -19,7 +19,7 @@ CORS(app, resources={r"/*": {"origins": ALLOWED_ORIGINS, "supports_credentials":
 # Sirve para garantizar la integridad de los tokens JWT, asegurando que no hayan sido alterados.
 # Cualquier servicio que comparta esta clave podrá verificar la autenticidad de los tokens generados.
 # mientras la Secret Key permanezca segura y suficientemente aleatoria, los tokens JWT firmados con ella serán confiables.
-app.config['JWT_SECRET_KEY'] = 'super-secret'  # Change this in a real app!
+app.config['JWT_SECRET_KEY'] = 'aslfkjsdlfsldfjkhsldfjkhsdlfjkh'  # Change this in a real app!
 
 # aunque no utilicemos la variable jwt directamente, es necesaria para inicializar la extensión.
 jwt = JWTManager(app)

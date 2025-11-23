@@ -1,12 +1,13 @@
 # Mini API JWT con Flask
 
-Aplicacion minima construida con Flask y Flask-JWT-Extended que expone un flujo de autenticacion con JSON Web Tokens (JWT). Incluye un endpoint de login que genera un token firmado mediante HMAC y un endpoint protegido que solo responde si el token es valido.
+Aplicacion minima construida con Flask y Flask-JWT-Extended que expone un login con JSON Web Tokens (JWT), un endpoint para obtener el usuario autenticado y otro para listar items protegidos. Incluye un pequeño frontend estatico para probar el flujo completo.
 
 ## Requisitos previos
 
 - Python 3.11 o superior.
 - `pip` para instalar dependencias.
 - (Opcional) `python -m venv` para aislar el entorno.
+- Node.js (incluye `npx`) si quieres servir el frontend estatico con `http-server`.
 
 ## Instalacion y configuracion
 
@@ -18,7 +19,7 @@ Aplicacion minima construida con Flask y Flask-JWT-Extended que expone un flujo 
    ```bash
    pip install -r requirements.in
    ```
-4. (Opcional) Define tu propia clave para firmar los JWT exportando `JWT_SECRET_KEY` o cambiando la constante en `app.py`. Nunca reutilices la clave de ejemplo (`super-secret`) en produccion.
+4. (Opcional) Define tu propia clave para firmar los JWT exportando `JWT_SECRET_KEY` o cambiando la constante en `app.py`. Nunca reutilices la clave de ejemplo en produccion.
 
 ## Ejecucion
 
@@ -28,21 +29,33 @@ Con el entorno virtual activo ejecuta:
 python app.py
 ```
 
-Flask levantara el servidor en `http://127.0.0.1:5000`. Para recargar automaticamente durante el desarrollo puedes exportar `FLASK_ENV=development` y usar `flask run`.
+Flask levantara el servidor en `http://127.0.0.1:5000`. Para recargar automaticamente durante el desarrollo puedes exportar `FLASK_ENV=development` y usar `flask run`. El CORS esta configurado para permitir `http://127.0.0.1:3000`, `http://localhost:3000` y `http://localhost:8000`.
+
+## Servir el frontend de ejemplo
+
+El proyecto incluye un frontend simple en `example-frontend`. Para levantarlo en el puerto 3000:
+
+1. Asegurate de tener Node.js instalado (viene con `npx`).
+2. Entra a la carpeta del frontend: `cd example-frontend`.
+3. Ejecuta: `npx http-server . -p 3000`
+4. Abre `http://127.0.0.1:3000` en el navegador.
+
+Si prefieres instalar el servidor estatico de forma global, puedes usar `npm install -g http-server` y luego `http-server . -p 3000`.
 
 ## Endpoints
 
-| Ruta         | Metodo | Descripcion                                                                                                  |
-|--------------|--------|--------------------------------------------------------------------------------------------------------------|
-| `/login`     | POST   | Recibe `username` y `password` en JSON. Si ambos son `test`, genera y devuelve un JWT de acceso.             |
-| `/protected` | GET    | Requiere el encabezado `Authorization: Bearer <token>`. Responde con el usuario asociado al JWT proporcionado.|
+| Ruta      | Metodo | Descripcion                                                                                                   |
+|-----------|--------|---------------------------------------------------------------------------------------------------------------|
+| `/login`  | POST   | Recibe `email` y `password` en JSON. Si son `test@example.com` / `test`, genera y devuelve un JWT de acceso.  |
+| `/me`     | GET    | Requiere `Authorization: Bearer <token>`. Devuelve el usuario autenticado.                                    |
+| `/items`  | GET    | Igual que `/me`, pero retorna ademas una lista de items de ejemplo.                                           |
 
 ### Ejemplo: solicitar un token
 
 ```bash
 curl -X POST http://127.0.0.1:5000/login ^
      -H "Content-Type: application/json" ^
-     -d "{\"username\": \"test\", \"password\": \"test\"}"
+     -d "{\"email\": \"test@example.com\", \"password\": \"test\"}"
 ```
 
 Respuesta esperada:
@@ -53,10 +66,10 @@ Respuesta esperada:
 }
 ```
 
-### Ejemplo: consumir el endpoint protegido
+### Ejemplo: consumir los endpoints protegidos
 
 ```bash
-curl http://127.0.0.1:5000/protected ^
+curl http://127.0.0.1:5000/me ^
      -H "Authorization: Bearer <access_token>"
 ```
 
@@ -64,14 +77,32 @@ Respuesta:
 
 ```json
 {
-  "logged_in_as": "test"
+  "logged_in_as": "test@example.com"
+}
+```
+
+```bash
+curl http://127.0.0.1:5000/items ^
+     -H "Authorization: Bearer <access_token>"
+```
+
+Respuesta (resumida):
+
+```json
+{
+  "logged_in_as": "test@example.com",
+  "items": [
+    { "title": "Item1", "description": "Description1", "price": 10.0 },
+    { "title": "Item2", "description": "Description2", "price": 20.0 }
+  ]
 }
 ```
 
 ## Estructura del proyecto
 
-- `app.py`: aplicacion Flask con la configuracion de JWT, el endpoint de inicio de sesion y el recurso protegido.
-- `requirements.in`: dependencias minimas necesarias para ejecutar el proyecto.
+- `app.py`: aplicacion Flask con configuracion CORS, endpoints de login, usuario y items protegidos por JWT.
+- `requirements.in`: dependencias de Python.
+- `example-frontend/`: frontend estatico (HTML/JS) para probar login y consumo de la API.
 
 ## Buenas practicas y proximos pasos
 
@@ -82,3 +113,4 @@ Respuesta:
 5. **Tests automatizados**: agrega pruebas unitarias/integracion que validen el flujo de autenticacion.
 
 Con estos pasos tendras una base solida para evolucionar esta API hacia un servicio de autenticacion mas completo y seguro.
+
